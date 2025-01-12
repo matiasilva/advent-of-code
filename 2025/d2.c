@@ -11,6 +11,7 @@
 #define BUF_MAX 128
 #define TOK_MAX 8
 #define REPORT_MAX 1000
+#define PART1 1
 
 typedef struct {
   size_t elems;
@@ -72,6 +73,7 @@ int main(void) {
   for (int i = 0; i < REPORT_MAX; ++i) {
     report *r = &reports[i];
     r->is_safe = is_safe(r->levels, r->elems);
+#ifndef PART1
     if (!r->is_safe) {
       // try removing one, see what happens
       int levels2[TOK_MAX];
@@ -86,6 +88,7 @@ int main(void) {
           break;
       }
     }
+#endif
   }
 
   int safe = 0;
