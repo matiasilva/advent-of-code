@@ -18,6 +18,32 @@ typedef struct {
   bool is_safe;
 } report;
 
+void print_list(int levels[], size_t elems) {
+  for (int i = 0; i < elems; i++) {
+    printf("%i ", levels[i]);
+  }
+  puts("");
+}
+bool is_safe(int levels[TOK_MAX], size_t elems) {
+  int n_diffs = elems - 1;
+  int diffs[n_diffs];
+  for (int j = 0; j < n_diffs; ++j) {
+    diffs[j] = levels[j] - levels[j + 1];
+  }
+  /* check conditions */
+  int is_pos_cnt = 0;
+  int is_in_range_cnt = 0;
+  for (int j = 0; j < n_diffs; ++j) {
+    if (diffs[j] >= 0)
+      is_pos_cnt++;
+    if ((abs(diffs[j]) < 4) && (abs(diffs[j]) > 0)) {
+      is_in_range_cnt++;
+    }
+  }
+  return ((is_pos_cnt < 1) || (is_pos_cnt > (n_diffs - 1))) &&
+         (is_in_range_cnt > (n_diffs - 1));
+}
+
 int main(void) {
   /* read in file */
   FILE *file = fopen("d2.txt", "r");
@@ -45,19 +71,21 @@ int main(void) {
   /* calculate diffs */
   for (int i = 0; i < REPORT_MAX; ++i) {
     report *r = &reports[i];
-    int n_diffs = r->elems - 1;
-    int diffs[n_diffs];
-    for (int j = 0; j < n_diffs; ++j) {
-      diffs[j] = r->levels[j] - r->levels[j + 1];
+    r->is_safe = is_safe(r->levels, r->elems);
+    if (!r->is_safe) {
+      // try removing one, see what happens
+      int levels2[TOK_MAX];
+      for (int j = 0; j < r->elems; ++j) {
+        int elems2 = r->elems - 1;
+        // printf("report: %d j: %d ", i, j);
+        memcpy(levels2, r->levels, sizeof(int) * j);
+        memcpy(&levels2[j], &(r->levels[j + 1]), sizeof(int) * (elems2 - j));
+        // print_list(levels2, elems2);
+        r->is_safe = is_safe(levels2, elems2);
+        if (r->is_safe)
+          break;
+      }
     }
-    /* check conditions */
-    bool is_pos = diffs[0] >= 0;
-    int bad = 0;
-    for (int j = 0; j < n_diffs; ++j) {
-      bad |= (diffs[j] >= 0) != is_pos;
-      bad |= abs(diffs[j]) > 3 || abs(diffs[j]) < 1;
-    }
-    r->is_safe = !bad;
   }
 
   int safe = 0;
