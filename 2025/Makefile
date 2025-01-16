@@ -1,6 +1,6 @@
 CFLAGS := -g -Wall
 CC := clang
-BIN ?= d2
+BIN ?= d3
 SOURCES := 
 
 all: $(BIN)
